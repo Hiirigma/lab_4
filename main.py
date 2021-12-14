@@ -1,6 +1,8 @@
 import math
 from sympy.ntheory import factorint
 import sympy
+# G_P = 4219
+# G_Q = 8999
 G_P = 19
 G_Q = 11
 G_N = G_P * G_Q
@@ -13,6 +15,10 @@ G_A = 1 # check with 1
 # second degree comparison has a solution, if
 # solvable x**2 = a (mod m1), x**2 = a (mod m2), x**2 = a (mod m3) ... 
 
+# Quadratic residue
+# 
+#
+#
 def solveCongruence(A,m):
 	res = []
 	x = 0
@@ -31,9 +37,9 @@ def solveCongruence(A,m):
 	return res
 
 
-def solveModularPolynom():
+def solveModularPolynom(modP):
 	A = [1, 0, -G_A]
-	m = G_N
+	m = modP
 
 	solves = solveCongruence(A,m)
 	if (not solves):
@@ -53,30 +59,21 @@ def findSolution():
 		print('Comparison unsolvable. There is solve exist: x**2 = a (mod p) => p = 3 (mod 4)' )
 		return
 
-	dLegaP = sympy.ntheory.residue_ntheory.legendre_symbol(G_A,G_P) 
+	dLegaP = sympy.ntheory.residue_ntheory.jacobi_symbol(G_A,G_P) 
 	if dLegaP == -1:
 		print ('a quadratic nonresidue modulo p')
 		return
 
-	dLegaQ = sympy.ntheory.residue_ntheory.legendre_symbol(G_A,G_Q) 
+	dLegaQ = sympy.ntheory.residue_ntheory.jacobi_symbol(G_A,G_Q) 
 	if dLegaQ == -1:
 		print ('a quadratic nonresidue modulo q')
 		return
 
-	print ('a modulo quadratic residue q и p')   
+	print ('a modulo quadratic residue q и p')
 
-	# x = a**((p+1)/2) (mod p) для p = 3 (mod 4)
-
-	# x2 = pow(G_A, (G_P + 1) // 4, G_P) + G_P*k 
-	# x2 = pow(G_A, (G_Q + 1) // 4, G_Q) + G_Q*k 
-	# x1 = pow(G_A, 3, G_P)
-	# x2 = pow(G_A, 3, G_Q)
-
-	# k1 = pow(x1, 2, G_N)
-	# k2 = pow(x2, 2, G_N)
-
-	# print (f'Solve: x1: {x1}, x2: {x2}, x3: {G_N-x1}, x4: {G_N-x2}')
-	solveModularPolynom()
+	# e = G_P//4
+	# x = pow(G_Q, e + 1, G_P)
+	solveModularPolynom(G_N)
 
 	return
 
