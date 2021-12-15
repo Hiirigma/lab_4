@@ -17,17 +17,50 @@ there is one of solution
 
 const { performance } = require('perf_hooks');
 
+function SolveCongruenceBig(A, m) {
+    var res = [];
+    var bigM = BigInt(m);
+    var bigA = [];
+
+    for (var _ = 0; _ < A.length; _++) {
+        bigA.push(BigInt(A[_]));
+    }
+
+    for (var x = BigInt(0), k = 0, n = bigA.length; x < bigM; x++) {
+        var p = BigInt(1);
+
+        let y = bigA[n - 1];
+        for (var i = 1; i < n; i++) {
+            p *= x;
+            y += bigA[n - 1 - i] * p;
+        }
+
+        if (x === BigInt(98545312)) {
+            console.log(y);
+        }
+
+        if (y % bigM === BigInt(0)) {
+            res[k++] = x;
+        }
+    }
+
+    return res;
+};
+
+
 function SolveCongruence(A, m) {
     var res = [];
+
     for (var x = 0, k = 0, n = A.length; x < m; x++) {
         var p = 1;
-        var y = A[n - 1];
+
+        let y = A[n - 1];
         for (var i = 1; i < n; i++) {
             p *= x;
             y += A[n - 1 - i] * p;
         }
 
-        if (y % m == 0) {
+        if (y % m === 0) {
             res[k++] = x;
         }
     }
@@ -109,26 +142,46 @@ function chineseRemainder(a, n) {
     return sm % prod;
 }
 
+function dec2bin(dec) {
+    return (dec >>> 0).toString(2);
+}
+
+function Montgomery(a, n, m) {
+    if (a > m || a < 1 || m < 0) {
+        return None;
+    }
+
+    if (n < 2) {
+        return a % m;
+    }
+
+    var binN = dec2bin(n);
+
+    var c = a ** (Number(binN[0]));
+    for (var i = 1; i < binN.length; i++) {
+        var c = (c ** 2) % m;
+        if (binN[i] === '1') {
+            c = (c * a) % m;
+        }
+    }
+
+    return c;
+}
+
 function SolveCongruenceSmart(a, m) {
 
     var x = [];
     var out = [];
     for (var mIdx = 0; mIdx < m.length; mIdx++) {
-        var prime = m[mIdx];
-        var l = Legednre(a, prime);
+        var k = (m[mIdx] - 3) / 4;
 
-        if (l === -1) {
-            console.log('a quadratic nonresidue modulo');
-            return -1;
-        }
+        // (a ** (k + 1)) % m[mIdx]; // mod((a ** (k + 1)), m[mIdx]);
+        // let xx = mod((a ** (k + 1)), m[mIdx]);
 
-        if (l === 1) {
-            var k = (prime - 3) / 4;
-            var x1 = mod((a ** (k + 1)), prime);
-            x.push(x1);
-            x.push(x1 * (-1));
-        }
-    };
+        let xx = Montgomery(a, k + 1, m[mIdx]);
+        x.push(xx);
+        x.push(xx * (-1));
+    }
 
     if (x.length !== 0) {
         var M = m[0] * m[1];
@@ -147,14 +200,62 @@ function SolveCongruenceSmart(a, m) {
     return out;
 }
 
+function OutputCongruence(A, p, q) {
+
+    var len = A.length;
+    var congruence = "";
+
+    len--;
+    if (A[len] < 0) {
+        do {
+            var a = A[A.length - len - 1];
+            if (a) {
+                congruence += (a).toString() +
+                    "x**" + (len).toString() + " + ";
+            }
+            len--;
+        } while (len != 0);
+
+        congruence = congruence.slice(0, congruence.length - 3);
+        congruence += " = " + (Math.abs(G_A)).toString() + " mod (" + (p * q).toString() + ")";
+    } else {
+        do {
+            var a = A[A.length - len - 1];
+            if (a) {
+                congruence += (a).toString() +
+                    "x**" + (len).toString() + " + ";
+            }
+            len--;
+        } while (len != 0);
+
+        congruence = congruence.slice(0, congruence.length - 3);
+        congruence += " + " + (G_A).toString() + " = " + "0 mod (" + (p * q).toString() + ")";
+    }
+
+    console.log(congruence);
+    console.log("p = " + p + "; q = " + q);
+}
+
 var G_A = 1;
 var A = [1, 0, -G_A];
-var p = 4219;
-var q = 8999;
+
+// var p = 19;
+// var q = 11;
+
+var p = 9923;
+var q = 9931;
 var m = p * q;
+var ma = [p, q];
+
+OutputCongruence(A, p, q);
 
 if (gcd(G_A, m) != 1) {
     console.log('a must be mutually prime with n');
+    return;
+}
+
+if (gcd(G_A, p) != 1 || gcd(G_A, q) != 1) {
+    console.log('a must be mutually prime with p and q');
     return;
 }
 
@@ -164,52 +265,30 @@ if (mod(p, 4) !== 3 || mod(q, 4) !== 3) {
     return;
 }
 
-var len = A.length;
-var congruence = "";
+for (var mIdx = 0; mIdx < ma.length; mIdx++) {
+    var prime = ma[mIdx];
+    var l = Legednre(G_A, prime);
 
-len--;
-if (A[len] < 0) {
-    do {
-        var a = A[A.length - len - 1];
-        if (a) {
-            congruence += (a).toString() +
-                "x**" + (len).toString() + " + ";
-        }
-        len--;
-    } while (len != 0);
-
-    congruence = congruence.slice(0, congruence.length - 3);
-    congruence += " = " + (Math.abs(G_A)).toString() + " mod (" + (m).toString() + ")";
-} else {
-    do {
-        a = A[A.length - len - 1];
-        if (a) {
-            congruence += (a).toString() +
-                "x**" + (len).toString() + " + ";
-        }
-        len--;
-    } while (len != 0);
-
-    congruence = congruence.slice(0, congruence.length - 3);
-    congruence += " + " + (G_A).toString() + " = " + "0 mod (" + (m).toString() + ")";
-}
-
-console.log(congruence)
+    if (l === -1) {
+        console.log('a quadratic nonresidue modulo');
+        return -1;
+    }
+};
 
 
 var time = performance.now();
 
-var solve = SolveCongruence(A, m);
+var solve = SolveCongruenceBig(A, m);
 console.log("Brute Force method: ", solve);
 
 time = performance.now() - time;
-console.log('Execution time : ', time);
+console.log('Execution time (milliseconds): ', time);
 
 
 time = performance.now();
 
-solve = SolveCongruenceSmart(G_A, [p, q]);
+solve = SolveCongruenceSmart(G_A, ma);
 console.log("Smart method: ", solve);
 
 time = performance.now() - time;
-console.log('Execution time : ', time);
+console.log('Execution time (milliseconds): ', time);

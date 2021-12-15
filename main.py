@@ -1,10 +1,11 @@
 import math
 from sympy.ntheory import factorint
 import sympy
-# G_P = 4219
-# G_Q = 8999
-G_P = 19
-G_Q = 11
+import datetime
+G_P = 4219
+G_Q = 8999
+# G_P = 19
+# G_Q = 11
 G_N = G_P * G_Q
 G_A = 1 # check with 1
 
@@ -59,28 +60,31 @@ def findSolution():
 		print('Comparison unsolvable. There is solve exist: x**2 = a (mod p) => p = 3 (mod 4)' )
 		return
 
-	dLegaP = sympy.ntheory.residue_ntheory.jacobi_symbol(G_A,G_P) 
+	dLegaP = sympy.ntheory.residue_ntheory.legendre_symbol(G_A,G_P) 
 	if dLegaP == -1:
 		print ('a quadratic nonresidue modulo p')
 		return
 
-	dLegaQ = sympy.ntheory.residue_ntheory.jacobi_symbol(G_A,G_Q) 
+	dLegaQ = sympy.ntheory.residue_ntheory.legendre_symbol(G_A,G_Q) 
 	if dLegaQ == -1:
 		print ('a quadratic nonresidue modulo q')
 		return
 
 	print ('a modulo quadratic residue q и p')
 
-	# e = G_P//4
-	# x = pow(G_Q, e + 1, G_P)
 	solveModularPolynom(G_N)
 
 	return
 
 def main():
-
+	# print(pow(4,1055,4219))
+	# return
+	print (f"Modul: {G_P} * {G_Q} = {G_N}")
 	if (len(factorint(G_P)) == 1 and len(factorint(G_Q)) == 1):
+		start = datetime.datetime.now()
 		findSolution()
+		end = datetime.datetime.now()
+		print(f'Time: {end-start}')
 	else:
 		print('Err: One of input value isn\'t primary' )
 		exit(-1)
